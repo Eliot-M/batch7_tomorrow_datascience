@@ -25,7 +25,7 @@ By doing so our goal is to raise consumer awareness on their individual footprin
 
 The project builds upon the 1M+ recipe dataset and existing estimates of CO2 emissions of ingredients.
 
-- [Recipe1M+: A Dataset for Learning Cross-Modal Embeddings for Cooking Recipes and Food Images(http://pic2recipe.csail.mit.edu/), [repository](https://github.com/torralba-lab/im2recipe#recipe1m-dataset)
+- [Recipe1M+: A Dataset for Learning Cross-Modal Embeddings for Cooking Recipes and Food Images](http://pic2recipe.csail.mit.edu/), [repository](https://github.com/torralba-lab/im2recipe#recipe1m-dataset)
 
 - Facebook Research inverse cooking : [Inverse Cooking: Recipe Generation from Food Images](https://arxiv.org/abs/1812.06164), [Facebook Research inverse cooking repository](https://github.com/facebookresearch/inversecooking)
 
