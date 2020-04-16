@@ -1,0 +1,3 @@
+Dossier pour stoker l'ensemble des codes python qui seront utilisées dans l'app (et appelées par app.py).
+
+Flask n'a pas besoin de ce dossier mais on est pas des bêtes, on fait des dossiers propres.

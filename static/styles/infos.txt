@@ -1,0 +1,3 @@
+Dossier pour déposer les fichiers css utilisés par l'application et les feuilles html.
+
+Flask cherchera dans ce répertoire par défaut.
