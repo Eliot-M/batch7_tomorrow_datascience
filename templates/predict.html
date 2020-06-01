@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title> Tomorrow - Calculate your Carbon Footprint ! </title>
+  <meta name="description" content="Upload an image of what you eat and we will calculate the footprint of your meal">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <meta charset="utf-8"/>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&family=Roboto:wght@300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div id="banner">
+    <div class="bannertext">
+      <h1> Here is your Carbon Footprint ! </h1>
+
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <p></p>
+    </div>
+  </div>
+
+<div class="row">
+  <div class="col-sm-6">
+    <div class="card border-dark mb-3 text-center" style="max-width: 40rem;">
+      <div class="card-header">The estimated recipe</div>
+      <div class="card-body">
+      <h5 class="card-title"></h5>
+
+      <!-- <p class="card-text"><a class='btn btn-danger btn-lg' href="#">Upload</a></p> -->
+      <ul>
+        {% for select in selection %}
+            <li>{{ select }}</li>
+        {% endfor %}
+    </ul>
+      </div>
+    </div>
+
+      </div>
+
+
+  <div class="col-sm-6">
+    <div class="card border-dark mb-3 " style="max-width: 40rem;">
+      <div class="card-header">Carbon footprint of the recipe</div>
+      <div class="card-body">
+      <h5 class="card-title"></h5>
+      <p class="card-text">The impact for '{{ recipe_name }}' is about {{ impact }}g of CO2.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+</body>
+</html>

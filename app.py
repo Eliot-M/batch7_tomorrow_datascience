@@ -170,7 +170,7 @@ def upload_file():
 
             return redirect(url_for('predict_recipe'))
 
-    return render_template('home_upload.html')
+    return render_template('home.html')
 
 
 @app.route("/predict", methods=["GET", "POST"])
@@ -209,7 +209,7 @@ def predict_recipe(): # here
         # Call for Text-mining part file
         tab, cook, total, title = get_total_impact(img_response=recipes, df_mapping=mapping_df, weight=300)
 
-    return render_template('results.html', impact=total, recipe_name=title)  #
+    return render_template('predict.html', impact=total, recipe_name=title, selection=['bla', 'ble', 'bli'])  #
     # return jsonify(recipes=recipes)
 
 

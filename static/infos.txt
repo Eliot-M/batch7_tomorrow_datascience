@@ -1,3 +1,3 @@
-Dossier pour déposer les objects statics (tel que les images de fond ou logo par exemple).
+Dossier pour déposer les objects statics (tel que les images de fond, css ou logo par exemple).
 
 Flask cherchera dans ce répertoire par défaut (je crois).
