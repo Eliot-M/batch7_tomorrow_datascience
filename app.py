@@ -55,8 +55,15 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 # Load matching df
 DF_PATH = os.path.join(DATA_DIR, "mapping_df.pkl")
+DF_PATH2 = os.path.join(DATA_DIR, "recipe_with_impact.pkl")
 
 mapping_df = pd.read_pickle(DF_PATH)
+recipe_impact_df = pd.read_pickle(DF_PATH2)
+
+
+# List. C'est sale ici mais pas le temps de de faire proprement pour le moment
+id_nom_dict = dict(zip(recipe_impact_df['id'], recipe_impact_df['title_clean']))
+titles = [x for x in list(set(recipe_impact_df.title_clean))]
 
 
 def allowed_file(filename):
@@ -207,9 +214,15 @@ def predict_recipe(): # here
         return 500, "Something went wrong generating the recipes"
     else:
         # Call for Text-mining part file
-        tab, cook, total, title = get_total_impact(img_response=recipes, df_mapping=mapping_df, weight=300)
+        #tab, cook, total, title = get_total_impact(img_response=recipes, df_mapping=mapping_df, weight=300)
+        name, url, total, weights, names, impacts = get_results(img_response=recipes, ref_df=recipe_impact_df,
+                                                                ref_dict=id_nom_dict, ref_list_titles=titles)
 
-    return render_template('predict.html', impact=total, recipe_name=title, selection=['bla', 'ble', 'bli'])  #
+        display = [str(round(i,1)) + "g of " + j + " : " + str(round(k,0)) + " gCO2" for i, j, k in zip(weights, names, impacts)]
+
+    return render_template('predict.html', recipe_name=name, url=url, impact=round(total, 0), selection=display,
+                           selection_weight=weights, selection_impact=impacts)  #
+
     # return jsonify(recipes=recipes)
 
 
