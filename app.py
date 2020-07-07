@@ -61,9 +61,11 @@ mapping_df = pd.read_pickle(DF_PATH)
 recipe_impact_df = pd.read_pickle(DF_PATH2)
 
 
-# List. C'est sale ici mais pas le temps de de faire proprement pour le moment
+# Needed lists. Probably not optimal to put them here but it works.
 id_nom_dict = dict(zip(recipe_impact_df['id'], recipe_impact_df['title_clean']))
 titles = [x for x in list(set(recipe_impact_df.title_clean))]
+
+# --- Facebook functions Part --- #
 
 
 def allowed_file(filename):
@@ -151,6 +153,9 @@ def generate_recipe(image_tensor):
     return recipes
 
 
+# --- Web App Part --- #
+
+
 @app.route("/", methods=["GET"])
 def health():
     if request.method == "GET":
@@ -172,7 +177,7 @@ def upload_file():
             flash('No selected file')
             return redirect(request.url)
         if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
+            #filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], 'file.jpg'))
 
             return redirect(url_for('predict_recipe'))
@@ -181,15 +186,15 @@ def upload_file():
 
 
 @app.route("/predict", methods=["GET", "POST"])
-def predict_recipe(): # here
+def predict_recipe():
     if request.method == "GET":
         #logger.info("POST request received!")
 
         try:
             # Get image file
-            #if request.files.get("image"):
+            #if request.files.get("image"):  # Changed it to map the project
             image = open('data/upload/file.jpg', "rb").read()
-                #logger.warning("Read image as a file")
+                #logger.warning("Read image as a file")  # Changed it to map the project
             image = Image.open(BytesIO(image))
             #else:
                 #image = request.form.getlist("image")
@@ -213,17 +218,15 @@ def predict_recipe(): # here
     if recipes == 500:
         return 500, "Something went wrong generating the recipes"
     else:
-        # Call for Text-mining part file
-        #tab, cook, total, title = get_total_impact(img_response=recipes, df_mapping=mapping_df, weight=300)
+
+        # - Call for Text-mining part file - #
         name, url, total, weights, names, impacts = get_results(img_response=recipes, ref_df=recipe_impact_df,
                                                                 ref_dict=id_nom_dict, ref_list_titles=titles)
 
-        display = [str(round(i,1)) + "g of " + j + " : " + str(round(k,0)) + " gCO2" for i, j, k in zip(weights, names, impacts)]
+        display = [str(round(i, 1)) + "g of " + j + " : " + str(round(k, 0)) + " gCO2" for i, j, k in zip(weights, names, impacts)]
 
-    return render_template('predict.html', recipe_name=name, url=url, impact=round(total, 0), selection=display,
-                           selection_weight=weights, selection_impact=impacts)  #
-
-    # return jsonify(recipes=recipes)
+    # -
+    return render_template('predict.html', recipe_name=name, url=url, impact=round(total, 0), selection=display)  #
 
 
 if __name__ == "__main__":

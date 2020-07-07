@@ -1,246 +1,37 @@
 # embarked_matching.py
 
-
-def get_total_impact(img_response, df_mapping, weight=300):
-    """
-    To do
-    """
-
-    # - Process input - #
-
-    # Get usable format
-    json_output_fb = img_response[0]  # 0 for the first recipe
-
-    # Extract main informations
-    list_ingredients = json_output_fb['ingrs']
-    list_instructions = json_output_fb['recipe']
-    name = json_output_fb['title']
-
-    # Create a single string instructions from its list
-    string_instructions = " ".join(list_instructions)
-    print(string_instructions)
-
-    # - Get impact from ingredients - #
-
-    # Filter mapping items according to ingredients from recipe
-    df_recette = df_mapping[df_mapping.can_match.isin(list_ingredients)]
-
-    # Compute relative impact
-    total_pond = sum(df_recette.pond)
-
-    df_recette['rel_weight'] = (df_recette['pond'] / total_pond) * (weight / 100)
-    df_recette['rel_impact'] = df_recette['rel_weight'] * df_recette['est_impact']
-
-    # - Get impact from cooking - #
-
-    # To do, looking for "bake, boil, toast, etc." from cooking steps from recipe
-    # To do, Looking for verbs with PoS tagging + manual selection ?
-    total_cook = 0
-
-    if "Toast" in string_instructions:
-        total_cook += 300
-    if "boil" in string_instructions:
-        total_cook += 200
-
-    string_cook = 'cooking impact: ' + str(total_cook) + 'g.'
-
-    # - Get total impact from both parts - #
-
-    total = round(sum(df_recette['rel_impact']) + total_cook)
-
-    return df_recette, string_cook, total, name
-
-
 # New functions
 import re
 import pandas as pd
 from operator import itemgetter
 from fuzzywuzzy import fuzz
 
-stop = ['i',
- 'me',
- 'my',
- 'myself',
- 'we',
- 'our',
- 'ours',
- 'ourselves',
- 'you',
- "you're",
- "you've",
- "you'll",
- "you'd",
- 'your',
- 'yours',
- 'yourself',
- 'yourselves',
- 'he',
- 'him',
- 'his',
- 'himself',
- 'she',
- "she's",
- 'her',
- 'hers',
- 'herself',
- 'it',
- "it's",
- 'its',
- 'itself',
- 'they',
- 'them',
- 'their',
- 'theirs',
- 'themselves',
- 'what',
- 'which',
- 'who',
- 'whom',
- 'this',
- 'that',
- "that'll",
- 'these',
- 'those',
- 'am',
- 'is',
- 'are',
- 'was',
- 'were',
- 'be',
- 'been',
- 'being',
- 'have',
- 'has',
- 'had',
- 'having',
- 'do',
- 'does',
- 'did',
- 'doing',
- 'a',
- 'an',
- 'the',
- 'and',
- 'but',
- 'if',
- 'or',
- 'because',
- 'as',
- 'until',
- 'while',
- 'of',
- 'at',
- 'by',
- 'for',
- 'with',
- 'about',
- 'against',
- 'between',
- 'into',
- 'through',
- 'during',
- 'before',
- 'after',
- 'above',
- 'below',
- 'to',
- 'from',
- 'up',
- 'down',
- 'in',
- 'out',
- 'on',
- 'off',
- 'over',
- 'under',
- 'again',
- 'further',
- 'then',
- 'once',
- 'here',
- 'there',
- 'when',
- 'where',
- 'why',
- 'how',
- 'all',
- 'any',
- 'both',
- 'each',
- 'few',
- 'more',
- 'most',
- 'other',
- 'some',
- 'such',
- 'no',
- 'nor',
- 'not',
- 'only',
- 'own',
- 'same',
- 'so',
- 'than',
- 'too',
- 'very',
- 's',
- 't',
- 'can',
- 'will',
- 'just',
- 'don',
- "don't",
- 'should',
- "should've",
- 'now',
- 'd',
- 'll',
- 'm',
- 'o',
- 're',
- 've',
- 'y',
- 'ain',
- 'aren',
- "aren't",
- 'couldn',
- "couldn't",
- 'didn',
- "didn't",
- 'doesn',
- "doesn't",
- 'hadn',
- "hadn't",
- 'hasn',
- "hasn't",
- 'haven',
- "haven't",
- 'isn',
- "isn't",
- 'ma',
- 'mightn',
- "mightn't",
- 'mustn',
- "mustn't",
- 'needn',
- "needn't",
- 'shan',
- "shan't",
- 'shouldn',
- "shouldn't",
- 'wasn',
- "wasn't",
- 'weren',
- "weren't",
- 'won',
- "won't",
- 'wouldn',
- "wouldn't"]
+# stopwords manually imported from NLTK package to prevent install and downloads from this library
+stop = ['i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', "you're", "you've",
+        "you'll", "you'd", 'your', 'yours', 'yourself', 'yourselves', 'he', 'him', 'his', 'himself',
+        'she', "she's", 'her', 'hers', 'herself', 'it', "it's", 'its', 'itself', 'they', 'them',
+        'their', 'theirs', 'themselves', 'what', 'which', 'who', 'whom', 'this', 'that', "that'll",
+        'these', 'those', 'am', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has',
+        'had', 'having', 'do', 'does', 'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if', 'or', 'because',
+        'as', 'until', 'while', 'of', 'at', 'by', 'for', 'with', 'about', 'against', 'between', 'into',
+        'through', 'during', 'before', 'after', 'above', 'below', 'to', 'from', 'up', 'down', 'in', 'out',
+        'on', 'off', 'over', 'under', 'again', 'further', 'then', 'once', 'here', 'there', 'when', 'where',
+        'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other', 'some', 'such',
+        'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 's', 't', 'can',
+        'will', 'just', 'don', "don't", 'should', "should've", 'now', 'd', 'll', 'm', 'o', 're', 've', 'y',
+        'ain', 'aren', "aren't", 'couldn', "couldn't", 'didn', "didn't", 'doesn', "doesn't", 'hadn', "hadn't",
+        'hasn', "hasn't", 'haven', "haven't", 'isn', "isn't", 'ma', 'mightn', "mightn't", 'mustn',
+        "mustn't", 'needn', "needn't", 'shan', "shan't", 'shouldn', "shouldn't", 'wasn', "wasn't",
+        'weren', "weren't", 'won', "won't", 'wouldn', "wouldn't"]
 
-manual_remove = ['', 'raw']
+manual_remove = ['', 'raw'] # if titles need to be clean
 
 
+# Function to apply same cleaning on titles as it is the case on the preprocess file
 def cleaning_input(string, manual_remove_list=manual_remove):
+    """
+    Function to apply on the output of the facebook algorithm to apply the same cleaning executed on MIT titles
+    """
     string = string.lower()
     string = re.sub(r'\([^)]*\)', '', string)
     string = string.replace('[^\w\s]', ' ')
@@ -252,6 +43,7 @@ def cleaning_input(string, manual_remove_list=manual_remove):
 
 def info_from_name(ref_df, ref_dict, name):
     """
+    Extract information from de pre-processed dataset (ingredients, weights, etc.) based on the title of the recipe
     """
 
     # get first id from name
@@ -272,7 +64,7 @@ def info_from_name(ref_df, ref_dict, name):
 
 def get_results(img_response, ref_df, ref_dict, ref_list_titles):
     """
-    To do
+    Wrapping function to return recipes (with titles, ingredients, impacts, etc.) based on the title estimated by facebook algorithm
     """
 
     # - Process input - #
@@ -280,9 +72,7 @@ def get_results(img_response, ref_df, ref_dict, ref_list_titles):
     # Get usable format
     json_output_fb = img_response[0]  # 0 for the first recipe
 
-    # Extract main informations
-    # list_ingredients = json_output_fb['ingrs']
-    # list_instructions = json_output_fb['recipe']
+    # Extract main information
     name = json_output_fb['title']
 
     clean_name = cleaning_input(name)
